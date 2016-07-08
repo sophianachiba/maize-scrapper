@@ -18,4 +18,5 @@ class StreetFoodItem(scrapy.Item):
     geolocation = scrapy.Field()
     schedule = scrapy.Field()
     phone = scrapy.Field()
-    email = scrapy.Field()
+    # email = scrapy.Field()
+    website = scrapy.Field()

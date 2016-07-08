@@ -2,22 +2,32 @@
 import scrapy
 from scrapy import Request
 from street_food.items import StreetFoodItem
-
-# VendorName, address, geolocation, schedule, phone number*, email address* *:if possible.
+from street_food.spiders import tools
 
 
 class GetFoodSpider(scrapy.Spider):
     name = "get-food"
     allowed_domains = ["yelp.com"]
-    start_urls = (
-        'http://www.yelp.com/search?find_loc=San+Francisco&start=0&cflt=streetvendors',
-        # 'http://www.yelp.com/search?find_loc=San+Francisco&start=10&cflt=streetvendors',
-        # 'http://www.yelp.com/search?find_loc=San+Francisco&start=20&cflt=streetvendors'
-    )
-
     base_url = "http://www.yelp.com"
 
+    pages_count = 20    # How much pages to crawl??
+
+    url_pattern = 'http://www.yelp.com/search?find_loc=San+Francisco&start={start}&cflt=streetvendors'
+
+    # start_urls = (
+    #    'http://www.yelp.com/search?find_loc=San+Francisco&start=0&cflt=streetvendors',
+    #    'http://www.yelp.com/search?find_loc=San+Francisco&start=10&cflt=streetvendors',
+    #    'http://www.yelp.com/search?find_loc=San+Francisco&start=190&cflt=streetvendors'
+    # )
+
+    # Generate urls for crawler, 'pi' is "page index"
+    start_urls = (lambda url_pattern=url_pattern, pages_count=pages_count:
+                  [url_pattern.format(start=pi) for pi in
+                   range(0, pages_count * 10, 10)])()
+
     def parse(self, response):
+        ''' Parse every vendor in search results '''
+
         vendor_path = '//*[@id="super-container"]/div/div[2]/div[1]/div/div[4]/ul[2]/li[@class="regular-search-result"]'
 
         for vendor_root in response.xpath(vendor_path):
@@ -28,17 +38,31 @@ class GetFoodSpider(scrapy.Spider):
             yield Request(vendor_url, callback=self.parse_vendor)
 
     def parse_vendor(self, response):
-
-        # Skip vendor if there is no schedule.
+        ''' Parse specific vendor '''
 
         item = StreetFoodItem()
-        name_path = '//*[@id="wrap"]/div[3]/div/div[1]/div/div[2]/div[1]/div[1]/h1/text()'
-        street_path = '//*[@id="wrap"]/div[3]/div/div[1]/div/div[3]/div[1]/div/div[2]/ul/li[1]/div/strong/address/span[1]/text()'
 
-        vendor_name = response.xpath(name_path).extract()[0].strip()
-        street = response.xpath(street_path).extract()[0].strip()
+        # Getting shedule, if there is no shedule, skip this item.
+        schedule = tools.get_vendor_schedule(response)
+        if not schedule:
+            self.logger.info("There is no schedule in this vendor, skip it...")
+            return
+        else:
+            item['schedule'] = schedule
 
-        item['VendorName'] = vendor_name
-        item['address'] = street
+        # Getting vendor's name.
+        item['VendorName'] = tools.get_vendor_name(response)
+
+        # Getting address.
+        item['address'] = tools.get_vendor_address(response)
+
+        # Getting geolocation.
+        item['geolocation'] = tools.get_vendor_geolocation(response)
+
+        # Getting phone number.
+        item['phone'] = tools.get_vendor_phone(response)
+
+        # Getting website
+        item['website'] = tools.get_vendor_website(response)
 
         yield item
