@@ -1,4 +1,4 @@
-Insctuction.
+Instruction.
 
 1. Create virtualenv:
 virtualenv -p /usr/bin/python3 street-food-scraper
