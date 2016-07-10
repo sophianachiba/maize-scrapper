@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from scrapy import Request
-from street_food.items import StreetFoodItem
+from street_food.items import StreetFoodItem, StreetFoodDatTimeItem
 from street_food.spiders import tools
 import json
 
@@ -91,7 +91,7 @@ class GetFoodOffTheGrid(scrapy.Spider):
     def parse_market(self, response):
         ''' Parse a market '''
 
-        item = StreetFoodItem()
+        item = StreetFoodDatTimeItem()
 
         market = json.loads(response.text)
         market_detail = market["MarketDetail"]["Market"]["Market"]
@@ -100,7 +100,7 @@ class GetFoodOffTheGrid(scrapy.Spider):
         # Market Address.
         market_address = market_detail["address"].strip()
         market_city = market_detail["city"].strip()
-        full_address = "{} / {}".format(market_address, market_city)
+        full_address = "{} {}".format(market_address, market_city)
 
         # Market location.
         market_latitude = market_detail['latitude']
@@ -113,18 +113,24 @@ class GetFoodOffTheGrid(scrapy.Spider):
 
         # Parse market events.
         for event in market_events:
-            event_date = "{}.{} {}{}".format(event['Event']['month_day'],
-                                             event['Event']['year'],
-                                             event['Event']['hours'],
-                                             event['Event']['am_pm'].lower())
-            item['schedule'] = event_date
+            event_date = "{}.{}".format(event['Event']['month_day'],
+                                        event['Event']['year'])
+
+            start_hour = event['Event']['hours'].split("-")[0]
+            end_hour = event['Event']['hours'].split("-")[-1]
+
+            start_datetime = "{} {}{}".format(event_date, start_hour,
+                                              "-")
+            end_datetime = "{} {}{}".format(event_date, end_hour,
+                                            event['Event']['am_pm'].lower())
+
+            item['start_datetime'] = start_datetime
+            item['end_datetime'] = end_datetime
 
             # Parse vendors of event.
             for vendor in event['Vendors']:
                 vendor_name = vendor['name']
-                vendor_website = vendor['website']
 
                 item['VendorName'] = vendor_name
-                item['website'] = vendor_website
 
                 yield item

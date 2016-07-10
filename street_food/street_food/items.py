@@ -20,3 +20,12 @@ class StreetFoodItem(scrapy.Item):
     phone = scrapy.Field()
     # email = scrapy.Field()
     website = scrapy.Field()
+
+
+class StreetFoodDatTimeItem(scrapy.Item):
+    VendorName = scrapy.Field()
+    address = scrapy.Field()
+    geolocation = scrapy.Field()
+
+    start_datetime = scrapy.Field()
+    end_datetime = scrapy.Field()
