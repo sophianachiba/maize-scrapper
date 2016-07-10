@@ -13,4 +13,6 @@ git clone https://github.com/kirimaks/street-food-scraper.git && cd street-food-
 pip install -r requirements.txt
 
 5. Run scraper:
-cd street_food && scrapy crawl get-food -o food.csv
+cd street_food 
+scrapy crawl get-food-yelp -o yelp-data.csv                 # Get data from yelp.com
+scrapy crawl get-food-offthegrid -o offthegrid-data.csv     # Get data from offthegrid.com
