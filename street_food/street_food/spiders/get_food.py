@@ -3,22 +3,17 @@ import scrapy
 from scrapy import Request
 from street_food.items import StreetFoodItem
 from street_food.spiders import tools
+import json
 
 
-class GetFoodSpider(scrapy.Spider):
-    name = "get-food"
+class GetFoodYelpCom(scrapy.Spider):
+    name = "get-food-yelp"
     allowed_domains = ["yelp.com"]
     base_url = "http://www.yelp.com"
 
     pages_count = 20    # How much pages to crawl??
 
     url_pattern = 'http://www.yelp.com/search?find_loc=San+Francisco&start={start}&cflt=streetvendors'
-
-    # start_urls = (
-    #    'http://www.yelp.com/search?find_loc=San+Francisco&start=0&cflt=streetvendors',
-    #    'http://www.yelp.com/search?find_loc=San+Francisco&start=10&cflt=streetvendors',
-    #    'http://www.yelp.com/search?find_loc=San+Francisco&start=190&cflt=streetvendors'
-    # )
 
     # Generate urls for crawler, 'pi' is "page index"
     start_urls = (lambda url_pattern=url_pattern, pages_count=pages_count:
@@ -66,3 +61,70 @@ class GetFoodSpider(scrapy.Spider):
         item['website'] = tools.get_vendor_website(response)
 
         yield item
+
+
+class GetFoodOffTheGrid(scrapy.Spider):
+    name = "get-food-offthegrid"
+    allowed_domains = ["offthegridmarkets.com", "offthegrid.com"]
+
+    start_urls = [
+        'https://offthegrid.com/otg-api/passthrough/markets.json/?latitude=37.7749295&longitude=-122.41941550000001&sort-order=distance-asc'
+    ]
+
+    def parse(self, response):
+        ''' Parse list of markets '''
+
+        markets = json.loads(response.text)
+
+        market_url = "https://offthegrid.com/otg-api/passthrough/markets/{}.json/"
+
+        # Get list of markets in San Francisco.
+        for market in [market for market in markets["Markets"]
+                       if market["Market"]["city"] == "San Francisco"]:
+            market = market['Market']
+
+            market_id = market['id']
+
+            yield Request(market_url.format(market_id),
+                          callback=self.parse_market)
+
+    def parse_market(self, response):
+        ''' Parse a market '''
+
+        item = StreetFoodItem()
+
+        market = json.loads(response.text)
+        market_detail = market["MarketDetail"]["Market"]["Market"]
+        market_events = market["MarketDetail"]["Events"]
+
+        # Market Address.
+        market_address = market_detail["address"].strip()
+        market_city = market_detail["city"].strip()
+        full_address = "{} / {}".format(market_address, market_city)
+
+        # Market location.
+        market_latitude = market_detail['latitude']
+        market_longitude = market_detail['longitude']
+        geolocation = "{} {}".format(market_latitude, market_longitude)
+
+        # Add data to item.
+        item['address'] = full_address
+        item['geolocation'] = geolocation
+
+        # Parse market events.
+        for event in market_events:
+            event_date = "{}.{} {}{}".format(event['Event']['month_day'],
+                                             event['Event']['year'],
+                                             event['Event']['hours'],
+                                             event['Event']['am_pm'].lower())
+            item['schedule'] = event_date
+
+            # Parse vendors of event.
+            for vendor in event['Vendors']:
+                vendor_name = vendor['name']
+                vendor_website = vendor['website']
+
+                item['VendorName'] = vendor_name
+                item['website'] = vendor_website
+
+                yield item
