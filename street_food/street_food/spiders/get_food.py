@@ -113,16 +113,8 @@ class GetFoodOffTheGrid(scrapy.Spider):
 
         # Parse market events.
         for event in market_events:
-            event_date = "{}.{}".format(event['Event']['month_day'],
-                                        event['Event']['year'])
 
-            start_hour = event['Event']['hours'].split("-")[0]
-            end_hour = event['Event']['hours'].split("-")[-1]
-
-            start_datetime = "{} {}{}".format(event_date, start_hour,
-                                              "-")
-            end_datetime = "{} {}{}".format(event_date, end_hour,
-                                            event['Event']['am_pm'].lower())
+            start_datetime, end_datetime = tools.get_start_end_datetime(event['Event'])
 
             item['start_datetime'] = start_datetime
             item['end_datetime'] = end_datetime

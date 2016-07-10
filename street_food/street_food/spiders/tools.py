@@ -1,4 +1,6 @@
 import json
+from pytz import timezone
+from datetime import datetime
 
 
 def get_vendor_schedule(resp):
@@ -88,3 +90,43 @@ def get_vendor_website(resp):
         return website
 
     return ""
+
+
+def get_start_end_datetime(event_data):
+
+    la_tz = timezone("America/Los_Angeles")
+
+    # Get start/end hour.
+    start_hour = event_data['hours'].split("-")[0].strip()
+    end_hour = event_data['hours'].split("-")[1].strip()
+
+    # Get time abbriveation.
+    end_hour_abbr = event_data['am_pm'].strip()
+
+    if int(start_hour) < int(end_hour):   # if in same 12 hours.
+        start_hour_abbr = end_hour_abbr
+    else:
+        start_hour_abbr = "AM" if end_hour_abbr == "PM" else "PM"
+
+    year = event_data['year'].strip()
+    month = event_data['month_day'].split(".")[0].strip()
+    day = event_data['month_day'].split(".")[1].strip()
+
+    # Datetime patterns.
+    time_pattern = "%d %m %Y %I %p"
+    format_pattern = "{} {} {} {} {}"
+
+    start_datetime_str = format_pattern.format(day, month, year,
+                                               start_hour, start_hour_abbr)
+
+    end_datetime_str = format_pattern.format(day, month, year,
+                                             end_hour, end_hour_abbr)
+
+    # Create datetime.
+    start_datetime = datetime.strptime(start_datetime_str, time_pattern)
+    start_datetime = start_datetime.replace(tzinfo=la_tz).isoformat()
+
+    end_datetime = datetime.strptime(end_datetime_str, time_pattern)
+    end_datetime = end_datetime.replace(tzinfo=la_tz).isoformat()
+
+    return start_datetime, end_datetime

@@ -10,6 +10,7 @@ pyasn1-modules==0.0.8
 pycparser==2.14
 PyDispatcher==2.0.5
 pyOpenSSL==16.0.0
+pytz==2016.4
 queuelib==1.4.2
 Scrapy==1.1.0
 service-identity==16.0.0
