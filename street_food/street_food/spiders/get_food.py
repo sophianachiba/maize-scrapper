@@ -4,6 +4,7 @@ from scrapy import Request
 from street_food.items import StreetFoodItem, StreetFoodDatTimeItem
 from street_food.spiders import tools
 import json
+from urllib import urlopen
 
 
 class GetFoodYelpCom(scrapy.Spider):
@@ -91,6 +92,15 @@ class GetFoodOffTheGrid(scrapy.Spider):
     def parse_market(self, response):
         ''' Parse a market '''
 
+		
+		# load Maize Vendors.
+        maizeresp = urlopen('http://yumbli.herokuapp.com/api/v1/allkitchens/?format=json')
+        vendors = json.loads(maizeresp.read().decode('utf8'))
+        maizevendors = {}
+        for v in vendors:
+           maizevendors[v['name'].lower()] = v['id']
+		   
+		   
         item = StreetFoodDatTimeItem()
 
         market = json.loads(response.text)
@@ -109,7 +119,8 @@ class GetFoodOffTheGrid(scrapy.Spider):
 
         # Add data to item.
         item['address'] = full_address
-        item['geolocation'] = geolocation
+        item['latitude'] = market_latitude
+        item['longitude'] = market_longitude
 
         # Parse market events.
         for event in market_events:
@@ -122,7 +133,12 @@ class GetFoodOffTheGrid(scrapy.Spider):
             # Parse vendors of event.
             for vendor in event['Vendors']:
                 vendor_name = vendor['name']
-
                 item['VendorName'] = vendor_name
+                if vendor_name and vendor_name.lower() in maizevendors.keys() : 
+                    item['maize_status'] = 'found'
+                    item['maize_id'] = maizevendors[vendor_name.lower()]
+                else:
+                    item['maize_status'] = 'not found'
+                    item['maize_id'] = 'n/a'
 
                 yield item

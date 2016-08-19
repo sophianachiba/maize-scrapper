@@ -25,7 +25,9 @@ class StreetFoodItem(scrapy.Item):
 class StreetFoodDatTimeItem(scrapy.Item):
     VendorName = scrapy.Field()
     address = scrapy.Field()
-    geolocation = scrapy.Field()
-
+    latitude = scrapy.Field()
+    longitude = scrapy.Field()
     start_datetime = scrapy.Field()
     end_datetime = scrapy.Field()
+    maize_status = scrapy.Field()
+    maize_id = scrapy.Field()
