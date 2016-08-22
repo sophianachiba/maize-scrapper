@@ -17,8 +17,11 @@ maize_id = header.index('maize_id')
 VendorName = header.index('VendorName')
 
 payload = {}
-url = 'http://localhost:8000/api/v1/kitchenopentimes/'
+url = 'http://yumbli.herokuapp.com/api/v1/kitchenopentimes/'
+total = 0
+uploaded = 0
 for row in csv_f:
+	total +=1
 	if row[maize_status] == 'found':
 		payload = {
 			"kitchen": row[maize_id],
@@ -35,4 +38,7 @@ for row in csv_f:
 		response = urllib2.urlopen(request)
 		print 'response:'
 		html = response.read()
+		uploaded +=1
 		print html
+		
+print "total entries: " + str(total) + " / uploaded entries: " +  str(uploaded)

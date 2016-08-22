@@ -94,7 +94,7 @@ def get_vendor_website(resp):
 
 def get_start_end_datetime(event_data):
 
-    la_tz = timezone("America/Los_Angeles")
+    la_tz = timezone("US/Pacific")
 
     # Get start/end hour.
     start_hour = event_data['hours'].split("-")[0].strip()
@@ -124,9 +124,9 @@ def get_start_end_datetime(event_data):
 
     # Create datetime.
     start_datetime = datetime.strptime(start_datetime_str, time_pattern)
-    start_datetime = start_datetime.replace(tzinfo=la_tz).isoformat()
+    start_datetime = la_tz.localize(start_datetime).isoformat()
 
     end_datetime = datetime.strptime(end_datetime_str, time_pattern)
-    end_datetime = end_datetime.replace(tzinfo=la_tz).isoformat()
+    end_datetime = la_tz.localize(end_datetime).isoformat()
 
     return start_datetime, end_datetime

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
 import scrapy
 from scrapy import Request
 from street_food.items import StreetFoodItem, StreetFoodDatTimeItem
 from street_food.spiders import tools
 import json
 from urllib import urlopen
+import random
 
 
 class GetFoodYelpCom(scrapy.Spider):
@@ -80,8 +82,7 @@ class GetFoodOffTheGrid(scrapy.Spider):
         market_url = "https://offthegrid.com/otg-api/passthrough/markets/{}.json/"
 
         # Get list of markets in San Francisco.
-        for market in [market for market in markets["Markets"]
-                       if market["Market"]["city"] == "San Francisco"]:
+        for market in [market for market in markets["Markets"]]:
             market = market['Market']
 
             market_id = market['id']
@@ -118,9 +119,8 @@ class GetFoodOffTheGrid(scrapy.Spider):
         geolocation = "{} {}".format(market_latitude, market_longitude)
 
         # Add data to item.
+        
         item['address'] = full_address
-        item['latitude'] = market_latitude
-        item['longitude'] = market_longitude
 
         # Parse market events.
         for event in market_events:
@@ -134,6 +134,11 @@ class GetFoodOffTheGrid(scrapy.Spider):
             for vendor in event['Vendors']:
                 vendor_name = vendor['name']
                 item['VendorName'] = vendor_name
+                randlongpos = random.randint(-150, 150) / 1000000
+                randlatpos = random.randint(-200, 200) / 1000000
+                item['latitude'] = abs(float(market_latitude)) + randlatpos
+                # abs then *-1 b/c off the grid has some wrong values
+                item['longitude'] = abs(float(market_longitude))*-1 + randlongpos
                 if vendor_name and vendor_name.lower() in maizevendors.keys() : 
                     item['maize_status'] = 'found'
                     item['maize_id'] = maizevendors[vendor_name.lower()]
