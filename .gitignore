@@ -1,2 +1,3 @@
 __pycache__
 street_food/*.csv
+*pyc
