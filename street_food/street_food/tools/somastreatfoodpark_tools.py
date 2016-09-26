@@ -44,28 +44,31 @@ def make_end_time(raw_time, cur_time):
 
 
 def parse_time(raw_time):
-    workdays = raw_time.split("/")[0].strip()[16:]
-    workdays = re.sub(r'\s', '', workdays)
+    try:
+        workdays = raw_time.split("/")[0].strip()[16:]
+        workdays = re.sub(r'\s', '', workdays)
 
-    saturday = raw_time.split("/")[1].split("|")[0].strip()[10:]
-    saturday = re.sub(r'\s', '', saturday)
+        saturday = raw_time.split("/")[1].split("|")[0].strip()[10:]
+        saturday = re.sub(r'\s', '', saturday)
 
-    sunday = raw_time.split("/")[1].split("|")[1].strip()[8:]
-    sunday = re.sub(r'\s', '', sunday)
+        sunday = raw_time.split("/")[1].split("|")[1].strip()[8:]
+        sunday = re.sub(r'\s', '', sunday)
 
-    tz = pytz.timezone("US/Pacific")
-    cur_time = datetime.now(tz=tz)
+        tz = pytz.timezone("US/Pacific")
+        cur_time = datetime.now(tz=tz)
 
-    if cur_time.weekday() in range(5):
-        start_time = make_start_time(workdays, cur_time)
-        end_time = make_end_time(workdays, cur_time)
+        if cur_time.weekday() in range(5):
+            start_time = make_start_time(workdays, cur_time)
+            end_time = make_end_time(workdays, cur_time)
 
-    elif cur_time.weekday() == 5:
-        start_time = make_start_time(saturday, cur_time)
-        end_time = make_end_time(saturday, cur_time)
+        elif cur_time.weekday() == 5:
+            start_time = make_start_time(saturday, cur_time)
+            end_time = make_end_time(saturday, cur_time)
 
-    elif cur_time.weekday() == 6:
-        start_time = make_start_time(sunday, cur_time)
-        end_time = make_end_time(sunday, cur_time)
+        elif cur_time.weekday() == 6:
+            start_time = make_start_time(sunday, cur_time)
+            end_time = make_end_time(sunday, cur_time)
 
-    return start_time, end_time
+        return start_time, end_time
+    except IndexError:
+        return None, None
