@@ -28,47 +28,60 @@ def get_vendor_name(response):
 
 
 def make_start_time(raw_time, cur_time):
-    vendor_stime = datetime.strptime(raw_time.split("-")[0], "%I:%M%p")
+    time = raw_time.split("-")[0].strip()
+    vendor_stime = datetime.strptime(time, "%I%p")
     cur_time = cur_time.replace(hour=vendor_stime.hour,
-                                minute=vendor_stime.minute)
+                                minute=vendor_stime.minute,
+                                second=0, microsecond=0)
 
     return str(cur_time)
 
 
 def make_end_time(raw_time, cur_time):
-    vendor_etime = datetime.strptime(raw_time.split("-")[1], "%I:%M%p")
+    time = raw_time.split("-")[1].strip()
+    vendor_etime = datetime.strptime(time, "%I%p")
     cur_time = cur_time.replace(hour=vendor_etime.hour,
-                                minute=vendor_etime.minute)
+                                minute=vendor_etime.minute,
+                                second=0, microsecond=0)
 
     return str(cur_time)
 
 
-def parse_time(raw_time):
-    try:
-        workdays = raw_time.split("/")[0].strip()[16:]
-        workdays = re.sub(r'\s', '', workdays)
+def get_time(response, dinner=False):
+    tz = pytz.timezone("US/Pacific")
+    cur_time = datetime.now(tz=tz)
 
-        saturday = raw_time.split("/")[1].split("|")[0].strip()[10:]
-        saturday = re.sub(r'\s', '', saturday)
+    time_xp = '//*[@id="block-yui_3_17_2_29_1430949198032_11012"]/div'
+    time_block = response.xpath(time_xp)
 
-        sunday = raw_time.split("/")[1].split("|")[1].strip()[8:]
-        sunday = re.sub(r'\s', '', sunday)
+    if cur_time.weekday() in range(5):
 
-        tz = pytz.timezone("US/Pacific")
-        cur_time = datetime.now(tz=tz)
+        if dinner:
+            raw_time = time_block.xpath(".//p/text()").extract()[1]
+            raw_time = re.sub(r':', '', raw_time)
+            raw_time = raw_time[6:]
+        else:
+            raw_time = time_block.xpath(".//p/text()").extract()[0]
+            raw_time = re.sub(r':', '', raw_time)
+            raw_time = raw_time[6:]
 
-        if cur_time.weekday() in range(5):
-            start_time = make_start_time(workdays, cur_time)
-            end_time = make_end_time(workdays, cur_time)
+        start_time = make_start_time(raw_time, cur_time)
+        end_time = make_end_time(raw_time, cur_time)
 
-        elif cur_time.weekday() == 5:
-            start_time = make_start_time(saturday, cur_time)
-            end_time = make_end_time(saturday, cur_time)
+    elif cur_time.weekday() == 5:
+        raw_time = time_block.xpath(".//p/text()").extract()[2]
+        raw_time = re.sub(r':', '', raw_time)
+        raw_time = raw_time[17:]
 
-        elif cur_time.weekday() == 6:
-            start_time = make_start_time(sunday, cur_time)
-            end_time = make_end_time(sunday, cur_time)
+        start_time = make_start_time(raw_time, cur_time)
+        end_time = make_end_time(raw_time, cur_time)
 
-        return start_time, end_time
-    except IndexError:
-        return None, None
+    elif cur_time.weekday() == 6:
+        raw_time = time_block.xpath(".//p/text()").extract()[3]
+        raw_time = re.sub(r':', '', raw_time)
+        raw_time = raw_time[6:]
+
+        start_time = make_start_time(raw_time, cur_time)
+        end_time = make_end_time(raw_time, cur_time)
+
+    return start_time, end_time
