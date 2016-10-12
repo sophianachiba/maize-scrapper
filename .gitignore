@@ -2,3 +2,6 @@ __pycache__
 street_food/*.csv
 *pyc
 *json
+street_food/build/
+street_food/project.egg-info/
+street_food/setup.py

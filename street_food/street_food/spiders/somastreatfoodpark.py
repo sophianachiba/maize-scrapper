@@ -2,8 +2,7 @@
 import scrapy
 import street_food.tools.somastreatfoodpark_tools as tools
 from street_food.items import StreetFoodDatTimeItem
-# import requests
-# import street_food.tools.basic_tools as basic_tools
+import street_food.tools.basic_tools as basic_tools
 from scrapy import Request
 
 
@@ -21,8 +20,7 @@ class SomastreatfoodparkSpider(scrapy.Spider):
     def __init__(self, *pargs, **kwargs):
         scrapy.Spider.__init__(self, *pargs, **kwargs)
 
-        # url = "http://yumbli.herokuapp.com/api/v1/allkitchens/?format=json"
-        # self.maize_vendors = requests.get(url).json()
+        self.maize_vendors = basic_tools.get_maize_vendors()
 
     def parse_lunch_vendors(self, response):
         address = tools.get_address(response)
@@ -39,22 +37,20 @@ class SomastreatfoodparkSpider(scrapy.Spider):
         vlist_xp = ".//div[contains(@class, 'summary-item\n')]"
         for vendor in vendors_block.xpath(vlist_xp):
 
-            lunch_item = StreetFoodDatTimeItem()
+            item = StreetFoodDatTimeItem()
 
             vendor_name = tools.get_vendor_name(vendor)
 
-            lunch_item['VendorName'] = vendor_name
-            lunch_item['address'] = address
-            lunch_item['latitude'] = '37.769782'
-            lunch_item['longitude'] = '-122.411848'
-            lunch_item['start_datetime'] = start_dtime
-            lunch_item['end_datetime'] = end_dtime
+            item['VendorName'] = vendor_name
+            item['address'] = address
+            item['latitude'] = '37.769782'
+            item['longitude'] = '-122.411848'
+            item['start_datetime'] = start_dtime
+            item['end_datetime'] = end_dtime
 
-            # lunch_item['maize_id'] = basic_tools.maize_api_search(
-            #                                    self.maize_vendors,
-            #                                                      vendor_name)
-
-            yield lunch_item
+            item['maize_id'] = basic_tools.maize_api_search(self.maize_vendors,
+                                                            vendor_name)
+            yield item
 
     def parse_dinner_vendors(self, response):
 
@@ -73,19 +69,17 @@ class SomastreatfoodparkSpider(scrapy.Spider):
         vlist_xp = ".//div[contains(@class, 'summary-item\n')]"
         for vendor in vendors_block.xpath(vlist_xp):
 
-            dinner_item = StreetFoodDatTimeItem()
+            item = StreetFoodDatTimeItem()
 
             vendor_name = tools.get_vendor_name(vendor)
 
-            dinner_item['VendorName'] = vendor_name
-            dinner_item['address'] = address
-            dinner_item['latitude'] = '37.769782'
-            dinner_item['longitude'] = '-122.411848'
-            dinner_item['start_datetime'] = start_dtime
-            dinner_item['end_datetime'] = end_dtime
+            item['VendorName'] = vendor_name
+            item['address'] = address
+            item['latitude'] = '37.769782'
+            item['longitude'] = '-122.411848'
+            item['start_datetime'] = start_dtime
+            item['end_datetime'] = end_dtime
 
-            # dinner_item['maize_id'] = basic_tools.maize_api_search(
-            # self.maize_vendors,
-            #                                                vendor_name)
-
-            yield dinner_item
+            item['maize_id'] = basic_tools.maize_api_search(self.maize_vendors,
+                                                            vendor_name)
+            yield item

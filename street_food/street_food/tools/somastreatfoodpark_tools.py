@@ -20,7 +20,7 @@ def get_address(response):
 def get_vendor_name(response):
     try:
         name_xp = ".//div[@class='summary-title']/a/text()"
-        vendor_name = response.xpath(name_xp).extract_first()
+        vendor_name = response.xpath(name_xp).extract_first().strip()
     except IndexError:
         return "null"
 
