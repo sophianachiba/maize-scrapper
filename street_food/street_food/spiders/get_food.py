@@ -9,63 +9,6 @@ from urllib import urlopen
 import random
 
 
-class GetFoodYelpCom(scrapy.Spider):
-    name = "get-food-yelp"
-    allowed_domains = ["yelp.com"]
-    base_url = "http://www.yelp.com"
-
-    pages_count = 20    # How much pages to crawl??
-
-    url_pattern = 'http://www.yelp.com/search?find_loc=San+Francisco&start={start}&cflt=streetvendors'
-
-    # Generate urls for crawler, 'pi' is "page index"
-    start_urls = (lambda url_pattern=url_pattern, pages_count=pages_count:
-                  [url_pattern.format(start=pi) for pi in
-                   range(0, pages_count * 10, 10)])()
-
-    def parse(self, response):
-        ''' Parse every vendor in search results '''
-
-        vendor_path = '//*[@id="super-container"]/div/div[2]/div[1]/div/div[4]/ul[2]/li[@class="regular-search-result"]'
-
-        for vendor_root in response.xpath(vendor_path):
-
-            vendor_url = vendor_root.xpath('.//a[@class="biz-name js-analytics-click"]/@href').extract()[0]
-            vendor_url = self.base_url + vendor_url
-
-            yield Request(vendor_url, callback=self.parse_vendor)
-
-    def parse_vendor(self, response):
-        ''' Parse specific vendor '''
-
-        item = StreetFoodItem()
-
-        # Getting shedule, if there is no shedule, skip this item.
-        schedule = tools.get_vendor_schedule(response)
-        if not schedule:
-            self.logger.info("There is no schedule in this vendor, skip it...")
-            return
-        else:
-            item['schedule'] = schedule
-
-        # Getting vendor's name.
-        item['VendorName'] = tools.get_vendor_name(response)
-
-        # Getting address.
-        item['address'] = tools.get_vendor_address(response)
-
-        # Getting geolocation.
-        item['geolocation'] = tools.get_vendor_geolocation(response)
-
-        # Getting phone number.
-        item['phone'] = tools.get_vendor_phone(response)
-
-        # Getting website
-        item['website'] = tools.get_vendor_website(response)
-
-        yield item
-
-
 class GetFoodOffTheGrid(scrapy.Spider):
     name = "get-food-offthegrid"
     allowed_domains = ["offthegridmarkets.com", "offthegrid.com"]
@@ -73,6 +16,12 @@ class GetFoodOffTheGrid(scrapy.Spider):
     start_urls = [
         'https://offthegrid.com/otg-api/passthrough/markets.json/?latitude=37.7749295&longitude=-122.41941550000001&sort-order=distance-asc'
     ]
+
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "street_food.pipelines.ApiUploader": 10,
+        }
+    }
 
     def parse(self, response):
         ''' Parse list of markets '''
@@ -93,15 +42,14 @@ class GetFoodOffTheGrid(scrapy.Spider):
     def parse_market(self, response):
         ''' Parse a market '''
 
-		
-		# load Maize Vendors.
+        # load Maize Vendors.
         maizeresp = urlopen('http://yumbli.herokuapp.com/api/v1/allkitchens/?format=json')
         vendors = json.loads(maizeresp.read().decode('utf8'))
         maizevendors = {}
         for v in vendors:
            maizevendors[v['name'].lower()] = v['id']
-		   
-		   
+
+
         item = StreetFoodDatTimeItem()
 
         market = json.loads(response.text)
@@ -119,7 +67,7 @@ class GetFoodOffTheGrid(scrapy.Spider):
         geolocation = "{} {}".format(market_latitude, market_longitude)
 
         # Add data to item.
-        
+
         item['address'] = full_address
 
         # Parse market events.
@@ -139,7 +87,7 @@ class GetFoodOffTheGrid(scrapy.Spider):
                 item['latitude'] = abs(float(market_latitude)) + randlatpos
                 # abs then *-1 b/c off the grid has some wrong values
                 item['longitude'] = abs(float(market_longitude))*-1 + randlongpos
-                if vendor_name and vendor_name.lower() in maizevendors.keys() : 
+                if vendor_name and vendor_name.lower() in maizevendors.keys() :
                     item['maize_status'] = 'found'
                     item['maize_id'] = maizevendors[vendor_name.lower()]
                 else:
