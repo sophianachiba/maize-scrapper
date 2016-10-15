@@ -12,7 +12,7 @@ class SomastreatfoodparkSpider(scrapy.Spider):
 
     custom_settings = {
         "ITEM_PIPELINES": {
-            "street_food.pipelines.ApiUploader": 10,
+            # "street_food.pipelines.ApiUploader": 10,
         }
     }
 
@@ -49,8 +49,8 @@ class SomastreatfoodparkSpider(scrapy.Spider):
 
             item['VendorName'] = vendor_name
             item['address'] = address
-            item['latitude'] = '37.769782'
-            item['longitude'] = '-122.411848'
+            item['latitude'] = basic_tools.mix_location('37.769782')
+            item['longitude'] = basic_tools.mix_location('-122.411848')
             item['start_datetime'] = start_dtime
             item['end_datetime'] = end_dtime
 
@@ -81,8 +81,8 @@ class SomastreatfoodparkSpider(scrapy.Spider):
 
             item['VendorName'] = vendor_name
             item['address'] = address
-            item['latitude'] = '37.769782'
-            item['longitude'] = '-122.411848'
+            item['latitude'] = basic_tools.mix_location('37.769782')
+            item['longitude'] = basic_tools.mix_location('-122.411848')
             item['start_datetime'] = start_dtime
             item['end_datetime'] = end_dtime
 

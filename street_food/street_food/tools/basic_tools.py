@@ -1,5 +1,8 @@
+from __future__ import division
 from fuzzywuzzy import fuzz
 import requests
+from random import randrange
+from decimal import Decimal, getcontext
 
 
 def maize_api_search(maize_vendors, cur_vendor):
@@ -17,3 +20,12 @@ def get_maize_vendors():
     maize_vendors = requests.get(url).json()
 
     return maize_vendors
+
+
+def mix_location(location):
+    getcontext().prec = 9
+
+    rand_val = randrange(0, 300) / 1000000
+    new_location = Decimal(location) + Decimal(rand_val)
+
+    return str(new_location)
