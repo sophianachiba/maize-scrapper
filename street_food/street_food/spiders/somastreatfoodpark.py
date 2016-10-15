@@ -10,6 +10,12 @@ class SomastreatfoodparkSpider(scrapy.Spider):
     name = "somastreatfoodpark"
     allowed_domains = ["www.somastreatfoodpark.com/"]
 
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "street_food.pipelines.ApiUploader": 10,
+        }
+    }
+
     def start_requests(self):
         url = 'http://www.somastreatfoodpark.com/'
 

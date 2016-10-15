@@ -10,6 +10,12 @@ class SparksocialsfSpider(scrapy.Spider):
     name = "sparksocialsf"
     allowed_domains = ["sparksocialsf.com"]
 
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "street_food.pipelines.ApiUploader": 10,
+        }
+    }
+
     def start_requests(self):
         url = 'http://www.sparksocialsf.com/schedule/'
 
