@@ -25,7 +25,7 @@ def get_maize_vendors():
 def mix_location(location):
     getcontext().prec = 9
 
-    rand_val = randrange(0, 300) / 1000000
+    rand_val = randrange(0, 100) / 1000000
     new_location = Decimal(location) + Decimal(rand_val)
 
     return str(new_location)
