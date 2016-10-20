@@ -42,6 +42,7 @@ class ApiUploader(object):
                 "latitude": item['latitude'],
                 "longitude": item['longitude'],
             }
+            # TODO: response is not handled.
+            requests.post(self.api_url, data=data)
 
-            resp = requests.post(self.api_url, data=data)
-            print(resp)
+        return item
