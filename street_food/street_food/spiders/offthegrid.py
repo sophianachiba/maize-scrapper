@@ -2,11 +2,13 @@
 from __future__ import division
 import scrapy
 from scrapy import Request
-from street_food.items import StreetFoodItem, StreetFoodDatTimeItem
+# from street_food.items import StreetFoodItem, StreetFoodDatTimeItem
+from street_food.items import StreetFoodDatTimeItem
 from street_food.spiders import tools
 import json
 from urllib import urlopen
-import random
+# import random
+from street_food.tools import basic_tools
 
 
 class GetFoodOffTheGrid(scrapy.Spider):
@@ -47,8 +49,7 @@ class GetFoodOffTheGrid(scrapy.Spider):
         vendors = json.loads(maizeresp.read().decode('utf8'))
         maizevendors = {}
         for v in vendors:
-           maizevendors[v['name'].lower()] = v['id']
-
+            maizevendors[v['name'].lower()] = v['id']
 
         item = StreetFoodDatTimeItem()
 
@@ -64,7 +65,7 @@ class GetFoodOffTheGrid(scrapy.Spider):
         # Market location.
         market_latitude = market_detail['latitude']
         market_longitude = market_detail['longitude']
-        geolocation = "{} {}".format(market_latitude, market_longitude)
+        # geolocation = "{} {}".format(market_latitude, market_longitude)
 
         # Add data to item.
 
@@ -82,12 +83,17 @@ class GetFoodOffTheGrid(scrapy.Spider):
             for vendor in event['Vendors']:
                 vendor_name = vendor['name']
                 item['VendorName'] = vendor_name
-                randlongpos = random.randint(-150, 150) / 1000000
-                randlatpos = random.randint(-200, 200) / 1000000
-                item['latitude'] = abs(float(market_latitude)) + randlatpos
+                # randlongpos = random.randint(-150, 150) / 1000000
+                # randlatpos = random.randint(-200, 200) / 1000000
+
+                # item['latitude'] = abs(float(market_latitude)) + randlatpos
                 # abs then *-1 b/c off the grid has some wrong values
-                item['longitude'] = abs(float(market_longitude))*-1 + randlongpos
-                if vendor_name and vendor_name.lower() in maizevendors.keys() :
+                # item['longitude'] = abs(float(market_longitude))*-1 + randlongpos
+
+                item['latitude'] = basic_tools.mix_location(market_latitude)
+                item['longitude'] = basic_tools.mix_location(market_longitude)
+
+                if vendor_name and vendor_name.lower() in maizevendors.keys():
                     item['maize_status'] = 'found'
                     item['maize_id'] = maizevendors[vendor_name.lower()]
                 else:
