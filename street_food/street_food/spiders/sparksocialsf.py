@@ -44,8 +44,8 @@ parent::div/parent::div/following-sibling::div"
 
             item['VendorName'] = vendor_name
             item['address'] = address
-            item['latitude'] = '37.770775'
-            item['longitude'] = '-122.391588'
+            item['latitude'] = basic_tools.mix_location('37.770775')
+            item['longitude'] = basic_tools.mix_location('-122.391588')
             item['start_datetime'] = start_dtime
             item['end_datetime'] = end_dtime
             item['maize_id'] = basic_tools.maize_api_search(self.maize_vendors,
@@ -69,8 +69,8 @@ parent::div/parent::div/following-sibling::div"
 
             item['VendorName'] = node.extract()
             item['address'] = address
-            item['latitude'] = '37.770775'
-            item['longitude'] = '-122.391588'
+            item['latitude'] = basic_tools.mix_location('37.770775')
+            item['longitude'] = basic_tools.mix_location('-122.391588')
             item['start_datetime'] = start_dtime
             item['end_datetime'] = end_dtime
             item['maize_id'] = basic_tools.maize_api_search(self.maize_vendors,

@@ -10,7 +10,7 @@ import random
 
 
 class GetFoodOffTheGrid(scrapy.Spider):
-    name = "get-food-offthegrid"
+    name = "offthegrid"
     allowed_domains = ["offthegridmarkets.com", "offthegrid.com"]
 
     start_urls = [

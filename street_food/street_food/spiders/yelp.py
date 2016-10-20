@@ -5,7 +5,7 @@ from street_food.items import StreetFoodItem
 
 
 class GetFoodYelpCom(scrapy.Spider):
-    name = "get-food-yelp"
+    name = "yelp"
     allowed_domains = ["yelp.com"]
     base_url = "http://www.yelp.com"
 
