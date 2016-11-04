@@ -4,13 +4,10 @@ import json
 from street_food.items import StreetFoodDatTimeItem
 import street_food.tools.basic_tools as basic_tools
 from street_food.tools.gloungesf_tools import gf_start_time, gf_end_time
-# from street_food import settings
-# import os
 
 
 class Gloungesf(scrapy.Spider):
     name = "gloungesf"
-    # api_key = os.environ.get('FB_API_KEY')
     api_url = "https://graph.facebook.com/gloungesf/feed?access_token={}"
 
     def __init__(self, api_key):
