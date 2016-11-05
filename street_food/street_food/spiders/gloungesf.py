@@ -10,6 +10,12 @@ class Gloungesf(scrapy.Spider):
     name = "gloungesf"
     api_url = "https://graph.facebook.com/gloungesf/feed?access_token={}"
 
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "street_food.pipelines.ApiUploader": 10,
+        }
+    }
+
     def __init__(self, api_key):
         self.maize_vendors = basic_tools.get_maize_vendors()
         self.api_key = api_key
