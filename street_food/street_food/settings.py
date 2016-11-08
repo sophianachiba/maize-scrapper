@@ -89,4 +89,6 @@ CONCURRENT_REQUESTS = 4
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-FB_API_KEY=""
+FB_API_KEY = ""
+HERE_APP_ID = ""
+HERE_APP_CODE = ""
