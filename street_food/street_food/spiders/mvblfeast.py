@@ -4,7 +4,7 @@ import json
 from street_food.items import StreetFoodDatTimeItem
 import street_food.tools.basic_tools as basic_tools
 
-from street_food.tools.mvblfeast_tools import get_geolocation
+from street_food.tools.mvblfeast_tools import get_geolocation, get_new_events
 
 
 class Mvblfeast(scrapy.Spider):
@@ -13,7 +13,7 @@ class Mvblfeast(scrapy.Spider):
 
     custom_settings = {
         "ITEM_PIPELINES": {
-            # "street_food.pipelines.ApiUploader": 10,
+            "street_food.pipelines.ApiUploader": 10,
         }
     }
 
@@ -39,13 +39,18 @@ class Mvblfeast(scrapy.Spider):
 
     def parse(self, response):
         data = json.loads(response.body)
-        last_event = data['data'][0]
-        desc = last_event['description']
+        # last_event = data['data'][0]
+        # desc = last_event['description']
 
-        for vendor in self.maize_vendors:
-            vname = vendor['name']
-            if vname.lower() in desc.lower():
-                yield self.make_item(vname, last_event)
+        events = get_new_events(data)
+
+        for event in events:
+            desc = event['description']
+
+            for vendor in self.maize_vendors:
+                vname = vendor['name']
+                if vname.lower() in desc.lower():
+                    yield self.make_item(vname, event)
 
     def make_item(self, vendor_name, last_event):
 

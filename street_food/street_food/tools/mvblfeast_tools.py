@@ -1,4 +1,7 @@
 import requests
+from dateutil import parser
+from pytz import timezone
+from datetime import datetime
 
 
 def get_geolocation(addr, app_id, app_code):
@@ -23,3 +26,18 @@ searchtext={addr}&app_id={app_id}&app_code={app_code}
         pass
 
     return None, None
+
+
+def get_new_events(resp):
+    tz = timezone("US/Pacific")
+    cur_time = datetime.now(tz=tz)
+
+    events = list()
+
+    for event in resp['data']:
+        event_end_time = parser.parse(event['end_time'])
+
+        if event_end_time > cur_time:
+            events.append(event)
+
+    return events
