@@ -22,7 +22,7 @@ def get_post_events(post):
         row = clean_row(row)
         try:
             event_date = parser.parse(row)  # Exception!
-            event_date = event_date.replace(tzinfo=tz)
+            event_date = tz.localize(event_date)
 
             if event_date.date() >= datetime.now(tz=tz).date():
                 event_text = rows[i + 1]
