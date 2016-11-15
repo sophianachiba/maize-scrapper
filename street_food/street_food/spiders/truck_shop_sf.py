@@ -33,14 +33,16 @@ posts?access_token={}"
 
     def parse(self, response):
         data = json.loads(response.body)
-        post_events = get_post_events(data['data'][0]['message'])
 
-        for vendor in self.maize_vendors:
-            vname = vendor['name']
-            for event in post_events:
-                if vname.lower() in event['event_text'].lower():
-                    vdate = event['event_date']
-                    yield self.make_item(vname, vdate)
+        for post in data['data']:
+            post_events = get_post_events(post['message'])
+
+            for vendor in self.maize_vendors:
+                vname = vendor['name']
+                for event in post_events:
+                    if vname.lower() in event['event_text'].lower():
+                        vdate = event['event_date']
+                        yield self.make_item(vname, vdate)
 
     def make_item(self, vendor_name, vendor_date):
 
