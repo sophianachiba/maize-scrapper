@@ -14,7 +14,7 @@ posts?access_token={}"
 
     custom_settings = {
         "ITEM_PIPELINES": {
-            # "street_food.pipelines.ApiUploader": 10,
+            "street_food.pipelines.ApiUploader": 10,
         }
     }
 
