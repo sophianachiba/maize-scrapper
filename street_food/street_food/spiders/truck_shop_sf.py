@@ -35,7 +35,8 @@ posts?access_token={}"
         data = json.loads(response.body)
 
         for post in data['data']:
-            post_events = get_post_events(post['message'])
+            post_events = get_post_events(post['message'],
+                                          post['created_time'])
 
             for vendor in self.maize_vendors:
                 vname = vendor['name']

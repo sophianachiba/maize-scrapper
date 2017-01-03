@@ -12,9 +12,13 @@ def clean_row(row):
     return row
 
 
-def get_post_events(post):
+def get_post_events(post, post_time):
     tz = timezone("US/Pacific")
     events = list()
+
+    # We don't have year in messages, so I take year
+    # from post timestamp.
+    post_year = parser.parse(post_time).year
 
     rows = re.split(r"(\(\d+/\d+)", post)
 
@@ -23,10 +27,9 @@ def get_post_events(post):
         try:
             event_date = parser.parse(row)  # Exception!
             event_date = tz.localize(event_date)
+            event_date = event_date.replace(year=post_year)
 
-            if (event_date.date() >= datetime.now(tz=tz).date() and
-               event_date.date().month - datetime.now(tz=tz).date().month <= 2):
-
+            if event_date.date() >= datetime.now(tz=tz).date():
                 event_text = rows[i + 1]
                 event_text = clean_row(event_text)
 
