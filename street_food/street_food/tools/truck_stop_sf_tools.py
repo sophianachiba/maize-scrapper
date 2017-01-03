@@ -24,7 +24,9 @@ def get_post_events(post):
             event_date = parser.parse(row)  # Exception!
             event_date = tz.localize(event_date)
 
-            if event_date.date() >= datetime.now(tz=tz).date():
+            if (event_date.date() >= datetime.now(tz=tz).date() and
+               event_date.date().month - datetime.now(tz=tz).date().month <= 2):
+
                 event_text = rows[i + 1]
                 event_text = clean_row(event_text)
 
