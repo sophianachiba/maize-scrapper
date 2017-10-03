@@ -29,3 +29,12 @@ def mix_location(location):
     new_location = Decimal(location) + Decimal(rand_val)
 
     return str(new_location)
+
+
+import datetime
+
+epoch = datetime.datetime.utcfromtimestamp(0)
+
+
+def get_date_millis(dt):
+    return (dt - epoch).total_seconds() * 1000.0
