@@ -9,8 +9,7 @@ def get_geolocation(addr, app_id, app_code):
         return None, None
 
     resp = requests.get("""https://geocoder.cit.api.here.com/6.2/geocode.json?\
-searchtext={addr}&app_id={app_id}&app_code={app_code}
-""".format(addr=addr, app_id=app_id, app_code=app_code)).json()
+searchtext={addr}&app_id={app_id}&app_code={app_code}""".format(addr=addr, app_id=app_id, app_code=app_code)).json()
 
     try:
 
