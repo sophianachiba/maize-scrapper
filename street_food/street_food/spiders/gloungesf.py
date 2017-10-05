@@ -31,7 +31,7 @@ class Gloungesf(scrapy.Spider):
 
     def parse(self, response):
         data = json.loads(response.body)
-        last_post = data['data'][0]['message']
+        last_post = data['data'][1]['message']
 
         for vendor in self.maize_vendors:
             vname = vendor['name']
