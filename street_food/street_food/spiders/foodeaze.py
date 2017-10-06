@@ -42,8 +42,8 @@ class Foodeaze(scrapy.Spider):
         item = StreetFoodDatTimeItem()
         item['VendorName'] = vendor_name
         item['address'] = "350 2nd street San Francisco, CA"
-        item['latitude'] = basic_tools.mix_location('37.783711')
-        item['longitude'] = basic_tools.mix_location('-122.394375')
+        item['latitude'] = basic_tools.mix_location('37.784487')
+        item['longitude'] = basic_tools.mix_location('-122.396100')
         item['start_datetime'] = gf_start_time()
         item['end_datetime'] = gf_end_time()
         item['maize_id'] = basic_tools.maize_api_search(self.maize_vendors,
