@@ -2,6 +2,11 @@ import bs4
 import pytz
 from datetime import datetime
 
+import re
+import logging
+
+logger = logging.getLogger()
+time_re = re.compile(r'(.*)-\s*([^\s]*).*')
 
 def get_vendor_name(response):
     try:
@@ -28,7 +33,18 @@ def get_address(response):
 
 
 def make_start_time(raw_time, cur_time):
-    time = raw_time.split("-")[0].strip() + "m"
+    logging.debug("Raw time: {}".format(raw_time))
+
+    time_re_match = time_re.match(raw_time)
+
+    if not time_re_match:
+        return ""
+
+    time = time_re_match.group(1).strip() + "m"
+
+    logging.debug("Start time: {}".format(time))
+
+    # time = raw_time.split("-")[0].strip() + "m"
     vendor_stime = datetime.strptime(time, "%I:%M%p")
     cur_time = cur_time.replace(hour=vendor_stime.hour,
                                 minute=vendor_stime.minute,
@@ -37,7 +53,17 @@ def make_start_time(raw_time, cur_time):
 
 
 def make_end_time(raw_time, cur_time):
-    time = raw_time.split("-")[1].strip() + "m"
+
+    time_re_match = time_re.match(raw_time)
+
+    if not time_re_match:
+        return ""
+
+    time = time_re_match.group(2).strip() + "m"
+
+    logging.debug("End time: {}".format(time))
+
+    # time = raw_time.split("-")[1].strip() + "m"
     vendor_stime = datetime.strptime(time, "%I:%M%p")
     cur_time = cur_time.replace(hour=vendor_stime.hour,
                                 minute=vendor_stime.minute,
