@@ -6,6 +6,7 @@ import street_food.tools.basic_tools as basic_tools
 
 from street_food.tools.mvblfeast_tools import get_geolocation, get_new_events
 
+import logging
 
 class Mvblfeast(scrapy.Spider):
     name = "mvblfeast"
@@ -53,10 +54,16 @@ class Mvblfeast(scrapy.Spider):
                     yield self.make_item(vname, event)
 
     def make_item(self, vendor_name, last_event):
+        event_location = last_event.get("place").get('location', {})
 
-        address = last_event.get("place").get("name")
+        if 'longitude' in event_location and 'latitude' in event_location:
+            latitude = event_location['latitude']
+            longitude = event_location['longitude']
 
-        latitude, longitude = get_geolocation(address,
+        else:
+            address = last_event.get("place").get("name")
+
+            latitude, longitude = get_geolocation(address,
                                               self.here_app_id,
                                               self.here_app_code)
 
